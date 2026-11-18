@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="430" viewBox="0 0 1280 430" role="img" aria-label="Quitanda: isso cabe no meu mês?">
+  <defs><clipPath id="c"><rect width="1280" height="430" rx="26"/></clipPath>
+  <linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2E7D4F"/><stop offset="1" stop-color="#143F28"/></linearGradient></defs>
+  <g clip-path="url(#c)"><rect width="1280" height="430" fill="url(#g)"/>
+  <circle cx="1130" cy="40" r="210" fill="#D9661F"/><circle cx="930" cy="150" r="88" fill="#E0A23A" opacity=".9"/><circle cx="70" cy="430" r="120" fill="#3C8D5D" opacity=".55"/>
+  <circle cx="92" cy="94" r="30" fill="#D9661F"/><ellipse cx="113" cy="58" rx="16" ry="8" transform="rotate(-25 113 58)" fill="#7FC79A"/>
+  <text x="138" y="108" font-family="Inter, 'Segoe UI', Arial, sans-serif" font-size="38" font-weight="800" fill="#fff">Quitanda</text>
+  <text x="62" y="208" font-family="Inter, 'Segoe UI', Arial, sans-serif" font-size="66" font-weight="800" fill="#fff">Isso <tspan fill="#F4A06A">cabe</tspan> no meu mês?</text>
+  <text x="64" y="262" font-family="Inter, 'Segoe UI', Arial, sans-serif" font-size="26" fill="#D6E8DC">Organização financeira pessoal e do casal com Open Finance</text>
+  <g font-family="Inter, 'Segoe UI', Arial, sans-serif" font-size="19" font-weight="600" fill="#fff">
+  <rect x="64" y="310" width="180" height="46" rx="23" fill="#fff" fill-opacity=".14"/><text x="154" y="340" text-anchor="middle">Consentimento</text>
+  <rect x="258" y="310" width="110" height="46" rx="23" fill="#fff" fill-opacity=".14"/><text x="313" y="340" text-anchor="middle">LGPD</text>
+  <rect x="382" y="310" width="240" height="46" rx="23" fill="#fff" fill-opacity=".14"/><text x="502" y="340" text-anchor="middle">Sem dupla contagem</text></g>
+  <g transform="translate(850 238)"><rect width="370" height="142" rx="20" fill="#fff"/><text x="28" y="44" font-family="Inter, 'Segoe UI', Arial, sans-serif" font-size="19" fill="#666B61">Hoje dá para gastar</text><text x="28" y="96" font-family="Inter, 'Segoe UI', Arial, sans-serif" font-size="46" font-weight="800" fill="#1F5736">R$ 44,61</text><text x="240" y="96" font-family="Inter, 'Segoe UI', Arial, sans-serif" font-size="20" fill="#666B61">por dia</text><text x="28" y="124" font-family="Inter, 'Segoe UI', Arial, sans-serif" font-size="15" fill="#B5520F">dados fictícios</text></g></g></svg>
