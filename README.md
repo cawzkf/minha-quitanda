@@ -11,7 +11,7 @@
 ![LGPD](https://img.shields.io/badge/LGPD-consentimento-2E7D4F?style=flat-square)
 ![React](https://img.shields.io/badge/React-19-D9661F?style=flat-square)
 ![TypeScript](https://img.shields.io/badge/TypeScript-6-B5520F?style=flat-square)
-![Testes](https://img.shields.io/badge/testes-112%20aprovados-2E7D4F?style=flat-square)
+![Testes](https://img.shields.io/badge/testes-115%20aprovados-2E7D4F?style=flat-square)
 
 </div>
 
@@ -95,7 +95,7 @@ O Quitanda reúne os dados autorizados pelo titular via Open Finance e os regist
 | --- | --- |
 | **Acesso** | Cadastro, login por senha ou biometria (passkeys/WebAuthn), confirmação de e-mail e recuperação de senha por link de uso único. |
 | **Bancas** | **Minha banca** privada e **Nossa banca** compartilhada por convite de uso único, válido por sete dias. |
-| **Open Finance** | Conexão com confirmação explícita, painel de consentimentos, histórico de acessos e desconexão com opção de apagar os dados importados. |
+| **Open Finance** | Conexão com confirmação explícita, painel de consentimentos, histórico de acessos e desconexão que apaga os dados importados, salvo escolha de mantê-los. |
 | **Cartões** | Fatura aberta, faturas futuras pelas parcelas restantes, compras pendentes e estornos. |
 | **Visão geral** | Saldo, limite diário estimado, reservas de contas e de dívidas. |
 | **Contas a pagar** | Preenchimento pela linha digitável ou pelo PDF do boleto, lidos no navegador, com baixa automática quando o débito aparece no banco. |
@@ -165,6 +165,7 @@ flowchart TB
 | Trilha protegida no banco de dados | Proteção só no código | O banco recusa alteração e exclusão; um erro na aplicação não reescreve o histórico. |
 | Sincronização tudo ou nada | Gravar conta a conta | Falha no meio não deixa dados pela metade. |
 | Duas formas de pagar, com faturas como padrão | Só dividir a dívida pela reserva | O total inclui as parcelas futuras, mas o dinheiro sai conforme o calendário das faturas. |
+| Apagar ao revogar, salvo escolha de manter | Manter até um pedido de exclusão | A revogação encerra o tratamento; manter dados exige decisão explícita e fica visível. |
 | Arquivos lidos no navegador | Upload ao servidor | Menos dado sensível no servidor e nenhum arquivo armazenado. |
 | Servidor próprio | Só plataforma gerenciada | Dados e operação sob controle próprio, com Cloudflare mantida como alternativa. |
 
@@ -261,7 +262,7 @@ sequenceDiagram
   A->>A: registra na trilha e sincroniza
 ```
 
-Conexão criada para outro login é registrada como acesso negado. Recusar na confirmação revoga o consentimento sem importar nada. Ao reconectar uma instituição, o sistema continua as mesmas contas, sem duplicar saldo, cartão ou lançamentos.
+Conexão criada para outro login é registrada como acesso negado. Recusar na confirmação revoga o consentimento sem importar nada. Ao desconectar, os dados importados são apagados por padrão. Quem escolhe mantê-los vê a conexão como encerrada e pode apagá-los depois. Ao reconectar uma instituição, o sistema continua as mesmas contas, sem duplicar saldo, cartão ou lançamentos.
 
 ### Autenticação
 
@@ -270,7 +271,7 @@ Conexão criada para outro login é registrada como acesso negado. Recusar na co
 | **OAuth2 com PKCE** | Executado pelo agregador com a instituição; o Quitanda nunca recebe a senha bancária. Na participação direta, passa ao Quitanda no perfil FAPI. |
 | **JWT** | Não é usado na sessão. Na participação direta, JWS e tokens das instituições entram no perímetro do Quitanda. |
 | **Sessão** | Token opaco em cookie `HttpOnly` e `SameSite=Lax`, com só o hash no banco; 12 horas sem uso e teto de 7 dias. |
-| **Passkeys** | WebAuthn com desafio de uso único; a chave privada nunca sai do aparelho. |
+| **Passkeys** | WebAuthn com desafio de uso único; a chave privada nunca sai do aparelho. A tela reconhece a chave já ativa e permite adicionar outra. |
 | **Senhas** | scrypt com N=16384, r=8 e p=5. |
 | **Proteções da API** | Checagem de origem, limites de tentativa e webhook autenticado por segredo. |
 
@@ -281,7 +282,7 @@ Conexão criada para outro login é registrada como acesso negado. Recusar na co
 | **Base legal e finalidade** | Consentimento do titular; dados usados só nos cálculos da própria pessoa. |
 | **Minimização** | Sem senha bancária, número completo de cartão ou CVV; arquivos lidos no navegador. |
 | **Transparência** | Painel de consentimentos e Histórico de acessos. |
-| **Revogação e retenção** | Desconectar revoga no provedor; vencido o consentimento, os dados da conexão são apagados por padrão. |
+| **Revogação e retenção** | Desconectar revoga no provedor e apaga os dados importados, salvo escolha explícita de mantê-los. Vencido o consentimento, os dados também são apagados por padrão. |
 | **Direitos do titular** | Acesso pelo painel, portabilidade em JSON e eliminação pela exclusão de conta. |
 | **Segregação** | Conexões sempre pessoais; consultas filtradas por dono ou pela banca do login. |
 | **Rastreabilidade** | Trilha imutável de concessão, consulta, revogação, vencimento, apagamento e tentativa negada, sem valores. |
@@ -303,7 +304,8 @@ O frontend consome a API própria em JSON, autenticada por cookie de sessão. A 
 | `POST` | `/api/banking/items/{id}/reject` | Recusa e revoga o consentimento. |
 | `POST`, `GET` | `/api/banking/connections` | Ativa a conexão ou lista validade e escopo. |
 | `POST` | `/api/banking/connections/{id}/sync` | Sincroniza sob demanda. |
-| `DELETE` | `/api/banking/connections/{id}` | Revoga, com opção de apagar os dados importados. |
+| `DELETE` | `/api/banking/connections/{id}` | Revoga e apaga os dados importados; `?keep=1` registra a escolha de mantê-los. |
+| `POST` | `/api/banking/connections/{id}/purge` | Apaga os dados mantidos de uma conexão encerrada. |
 | `GET` | `/api/banking/audit` | Histórico de acessos. |
 | `POST` | `/api/banking/webhook` | Aviso autenticado do provedor. |
 | `GET`, `POST`, `DELETE` | `/api/messages` | Histórico, pergunta e nova conversa no Conversar. |
@@ -341,7 +343,7 @@ O MVP foi viabilizado pelo Sandbox do agregador, pelo escopo só de leitura, pel
 
 | Verificação | Situação |
 | --- | --- |
-| Testes automatizados | 113 no total: 112 aprovados e 1 opcional, que depende de um extrato real |
+| Testes automatizados | 116 no total: 115 aprovados e 1 opcional, que depende de um extrato real |
 | Cenários de navegador | 24 cenários declarados |
 | Roteiro manual | QA-01 a QA-14 no DAS |
 
